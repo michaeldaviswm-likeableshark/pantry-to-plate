@@ -451,12 +451,7 @@ export default function App() {
               $29.99 <span style={{fontSize:"0.75rem",fontFamily:"'DM Sans',sans-serif",fontWeight:500,color:ink3}}>/ year · Save 37%</span>
             </div>
           </div>
-          <button style={s.subBtn} onClick={()=>{
-            setIsPro(true)
-            localStorage.setItem("ptp_pro","true")
-            alert("🎉 Pro activated! In production this connects to Stripe/RevenueCat.")
-            setTab("generate")
-          }}>
+         onClick={()=>startCheckout('monthly')}>
             Start 7-Day Free Trial →
           </button>
           <div style={{fontSize:"0.66rem",color:ink3,marginTop:9,lineHeight:1.5}}>

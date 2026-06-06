@@ -99,7 +99,31 @@ export default function App() {
   const [photoPreview,setPhotoPreview]=useState(null)
   const [photoB64,setPhotoB64]=useState(null)
   const [photoMime,setPhotoMime]=useState("image/jpeg")
-  const [isPro,setIsPro]=useState(()=>localStorage.getItem("ptp_pro")==="true")
+  const [isPro,setIsPro]=useState(()=>{
+    // Check URL for successful Stripe return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('pro') === 'true') {
+      localStorage.setItem('ptp_pro','true')
+      window.history.replaceState({}, '', window.location.pathname)
+      return true
+    }
+    return localStorage.getItem('ptp_pro') === 'true'
+  })
+
+  const startCheckout = async (plan) => {
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ plan })
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+      else alert('Could not start checkout: ' + (data.error || 'Unknown error'))
+    } catch(e) {
+      alert('Checkout error: ' + e.message)
+    }
+  }
   const fileRef=useRef()
 
   const allIngredients=[...ingredients,...photoIngredients]
@@ -451,8 +475,12 @@ export default function App() {
               $29.99 <span style={{fontSize:"0.75rem",fontFamily:"'DM Sans',sans-serif",fontWeight:500,color:ink3}}>/ year · Save 37%</span>
             </div>
           </div>
-         onClick={()=>startCheckout('monthly')}>
-            Start 7-Day Free Trial →
+          <button style={s.subBtn} onClick={()=>startCheckout('monthly')}>
+            Start 7-Day Free Trial — $3.99/mo →
+          </button>
+          <button style={{...s.subBtn,background:ink,boxShadow:'none',marginTop:8}}
+            onClick={()=>startCheckout('annual')}>
+            Get Annual Plan — $29.99/yr (Save 37%) →
           </button>
           <div style={{fontSize:"0.66rem",color:ink3,marginTop:9,lineHeight:1.5}}>
             Cancel anytime. No charge during trial.
